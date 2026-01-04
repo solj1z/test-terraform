@@ -486,9 +486,8 @@ resource "aws_instance" "example" {
 */
 
 module "github_repo" {
-  source = "github.com/solj1z/terraform10"
+  source = "github.com/solj1z/test-terraform"
 }
-
 
 
 
