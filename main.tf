@@ -28,12 +28,12 @@ terraform {
 #  profile = "new"
 #}
 
-resource "aws_s3_bucket" "state_backend" {
-  bucket = "my-unique-replicated-bucket-12345-soso"
-  tags = {
-    Name        = "s3_terraform_bucket"
-  }
-}
+#resource "aws_s3_bucket" "state_backend" {
+#  bucket = "my-unique-replicated-bucket-12345-soso"
+#  tags = {
+#    Name        = "s3_terraform_bucket"
+#  }
+#}
 
 #resource "aws_vpc" "soso" {
 #  cidr_block = "10.0.0.0/16"
