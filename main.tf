@@ -1,23 +1,32 @@
 terraform {
-  backend "s3" {
-    bucket = "my-unique-replicated-bucket-12345-soso"
-    key    = "terraform/dev/terraform.tfstate"
-    region = "us-east-1"
-    profile = "sola-terraform"
+  cloud {
+    organization = "ssydytfku"
+
+    workspaces {
+      name = "test-terraform"
+    }
+  }
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+    }
   }
 }
 
-provider "aws" {
-  region  = "us-east-1"
-  profile = "sola-terraform"
-  }
+# backend "s3" {
+#    bucket = "my-unique-replicated-bucket-12345-soso"
+#    key    = "terraform/dev/terraform.tfstate"
+#    region = "us-east-1"
+#    profile = "sola-terraform"
+#  }
+#}
 
-
-provider "aws" {
-  alias   = "secondary"
-  region  = "us-west-2"
-  profile = "new"
-}
+#provider "aws" {
+#  alias   = "secondary"
+#  region  = "us-west-2"
+#  profile = "new"
+#}
 
 resource "aws_s3_bucket" "state_backend" {
   bucket = "my-unique-replicated-bucket-12345-soso"
