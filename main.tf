@@ -1,7 +1,17 @@
+terraform {
+  backend "s3" {
+    bucket = "my-unique-replicated-bucket-12345-soso"
+    key    = "terraform/dev/terraform.tfstate"
+    region = "us-east-1"
+    profile = "sola-terraform"
+  }
+}
+
 provider "aws" {
   region  = "us-east-1"
   profile = "sola-terraform"
-}
+  }
+
 
 provider "aws" {
   alias   = "secondary"
@@ -9,16 +19,12 @@ provider "aws" {
   profile = "new"
 }
 
-#resource "aws_s3_bucket" "soso_storage_bucket" {
-# The bucket name must be globally unique
-#  bucket = "my-soso-unique-application-data-bucket-12345"
-# Standard practice to block all public access for security
-#  acl = "private" 
-
-#  tags = {
-#    Name        = "terraform_soso_bucket"
-#  }
-#}
+resource "aws_s3_bucket" "state_backend" {
+  bucket = "my-unique-replicated-bucket-12345-soso"
+  tags = {
+    Name        = "s3_terraform_bucket"
+  }
+}
 
 #resource "aws_vpc" "soso" {
 #  cidr_block = "10.0.0.0/16"
@@ -54,12 +60,6 @@ provider "aws" {
 #  tags = {
 #    Name = "soso_internet_gateway"
 #  }
-#}
-
-
-#output "s3_arn" {
-#  value = aws_s3_bucket.soso_storage_bucket.arn
-
 #}
 
 #resource "aws_instance" "web" {
@@ -483,15 +483,55 @@ resource "aws_instance" "example" {
   ) 
 }
 
-*/
-
 module "github_repo" {
   source = "github.com/solj1z/test-terraform/modules"
 }
 
+## TERRAFORM REMOTE STATE EX:
 
+# PROJECT A:
 
+resource "aws_eip" "test" {
+  domain = "vpc"
+  tags = {
+    Name = "test_eip"
+  }
+}
 
+output "allocation_id" {
+  value = aws_eip.test.allocation_id
+  description = "Elastic IP allocation ID"
+}
 
+output "eip_ip" {
+  value = aws_eip.test.public_ip
+  description = "Elastic IP address"
+}
 
+# PROJECT B:
 
+data "terraform_remote_state" "test" {
+  backend = "s3"
+  config = {
+    bucket = "my-unique-replicated-bucket-12345-soso"
+    key    = "terraform/dev/terraform.tfstate"
+    region = "us-east-1"
+    profile = "sola-terraform"
+  }
+
+}
+
+resource "aws_instance" "use_eip" {
+  ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2 AMI (HVM), SSD Volume Type
+  instance_type = "t3.micro"
+  tags = {
+    Name = "UseEIPInstance"
+  }
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.use_eip.id
+  allocation_id = data.terraform_remote_state.test.outputs.allocation_id
+}
+
+*/
